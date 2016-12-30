@@ -102,23 +102,34 @@ type Result struct {
 	Value     float64  `json:"value"`
 }
 
-type Comparison struct {
-	Component       string   `json:"component"`
+type Metric struct {
 	GreaterIsBetter bool     `json:"greaterIsBetter"`
 	Metric          string   `json:"metric"`
+	Threshold       int      `json:"threshold"`
 	Title           string   `json:"title"`
 	Results         []Result `json:"results"`
+}
+
+type Comparison struct {
+	Component string   `json:"component"`
+	Metrics   []Metric `json:"metrics"`
 }
 
 func (d *dataStore) compare(build1, build2 string) (*[]Comparison, error) {
 	comparison := []Comparison{}
 
 	query := gocb.NewN1qlQuery(
-		"SELECT component, title, metric, greaterIsBetter, ARRAY_AGG({\"build\": `build`, \"value\": `value`, \"snapshots\": snapshots}) AS results " +
+		"SELECT q.component, " +
+			"ARRAY_AGG({\"metric\": q.metric, \"title\": q.title, \"greaterIsBetter\": q.greaterIsBetter, \"threshold\": q.threshold, \"results\": q.results}) AS metrics " +
+			"FROM ( " +
+			"SELECT component, title, metric, greaterIsBetter, threshold, " +
+			"ARRAY_AGG({\"build\": `build`, \"snapshots\": snapshots, \"value\": `value`}) AS results " +
 			"FROM daily " +
 			"WHERE `build` = $1 OR `build` = $2 " +
-			"GROUP BY component, title, metric, greaterIsBetter " +
-			"ORDER BY component, title, metric;")
+			"GROUP by component, title, metric, greaterIsBetter, threshold) AS q " +
+			"GROUP BY q.component " +
+			"HAVING COUNT(*) > 0 " +
+			"ORDER BY q.component;")
 	params := []interface{}{build1, build2}
 
 	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
