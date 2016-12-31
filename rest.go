@@ -47,6 +47,9 @@ func compare(c *gin.Context) {
 func httpEngine() *gin.Engine {
 	router := gin.Default()
 
+	router.StaticFile("/", "./app/dashboard.html")
+	router.Static("/static", "./app")
+
 	rg := router.Group("/api/v1")
 
 	rg.POST("benchmarks", addBenchmark)

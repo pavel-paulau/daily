@@ -1,0 +1,20 @@
+a, a:hover {
+	color: black;
+	text-decoration: none;
+}
+
+tbody {
+	font-size: 15px;
+}
+
+.failed {
+	color: #d43f3a;
+}
+
+.passed {
+	color: #449d44;
+}
+
+.incomplete {
+	color: #ec971f;
+}
