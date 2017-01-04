@@ -5,7 +5,7 @@ angular
 function DashboardCtrl($scope, $http) {
 	$( "#dashboard" ).show();
 
-	$http.get('/api/v1/builds').then(function(response) {
+	$http.get('api/v1/builds').then(function(response) {
 		$scope.builds = response.data;
 		$scope.lhb = $scope.builds[0];
 		$scope.rhb = $scope.builds[$scope.builds.length - 1];
@@ -33,7 +33,7 @@ function Compare($scope, $http) {
 		return;
 	}
 
-	$http.get('/api/v1/comparison/' + $scope.lhb + '/' + $scope.rhb).then(function(response) {
+	$http.get('api/v1/comparison/' + $scope.lhb + '/' + $scope.rhb).then(function(response) {
 		$scope.comparisons = response.data;
 	});
 }
