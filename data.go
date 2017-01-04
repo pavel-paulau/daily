@@ -126,7 +126,7 @@ func (d *dataStore) compare(build1, build2 string) (*[]Comparison, error) {
 			"ARRAY_AGG({\"build\": `build`, \"snapshots\": snapshots, \"value\": `value`}) AS results " +
 			"FROM daily " +
 			"WHERE `build` = $1 OR `build` = $2 " +
-			"GROUP by component, title, metric, greaterIsBetter, threshold) AS q " +
+			"GROUP BY component, title, metric, greaterIsBetter, threshold) AS q " +
 			"GROUP BY q.component " +
 			"HAVING COUNT(*) > 0 " +
 			"ORDER BY q.component;")
