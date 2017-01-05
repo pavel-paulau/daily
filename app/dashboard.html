@@ -1,90 +1,78 @@
-<html ng-app="daily">
+<div class="container-fluid">
+    <div class="masthead text-center">
+        <h2>Daily Performance</h2>
+    </div>
 
-<head>
-	<title>Daily Performance</title>
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="static/dashboard.css" />
-
-	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
-
-    <script type="text/javascript" src="static/dashboard.js"></script>
-</head>
-
-<body class="container-fluid" ng-controller="DashboardCtrl">
-    <div class="container-fluid">
-        <div class="masthead text-center">
-            <h2>Daily Performance</h2>
+    <div class="row" >
+        <div class="col-md-1 col-md-offset-5">
+            <select class="form-control" ng-model="lhb" ng-options="build for build in builds">
+            </select>
         </div>
 
-        <div class="row" >
-            <div class="col-md-1 col-md-offset-5">
-                <select class="form-control" ng-model="lhb" ng-options="build for build in builds">
-                </select>
-            </div>
-
-            <div class="col-md-1 col-md-offset-0">
-                <select class="form-control" ng-model="rhb" ng-options="build for build in builds">
-                </select>
-            </div>
-        </div>
-
-        <div class="col-md-10 col-md-offset-1" id="dashboard" style="display: none">
-            <div ng-repeat="comparison in comparisons">
-                <h3>{{ comparison.component }}</h3>
-
-                <table class="table-striped table-bordered table-condensed" style="width: 100%">
-                    <colgroup>
-                        <col span="1" style="width: 7%;">
-                        <col span="1" style="width: 35%;">
-                        <col span="1" style="width: 22%;">
-                        <col span="1" style="width: 9%;">
-                        <col span="1" style="width: 9%;">
-                        <col span="1" style="width: 9%;">
-                        <col span="1" style="width: 9%;">
-                    </colgroup>
-
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Test Case</th>
-                            <th>Metric</th>
-                            <th class="text-center">{{ lhb }}</th>
-                            <th class="text-center">{{ rhb }}</th>
-                            <th class="text-center">Delta</th>
-                            <th class="text-center">Graphs</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr ng-repeat="metric in comparison.metrics">
-                            <td>
-                                <strong class="{{ status }}">
-                                    {{ status = evalStatus(metric.results, metric.greaterIsBetter, metric.threshold) }}
-                                </strong>
-                            </td>
-                            <td>{{ metric.title }}</td>
-                            <td>{{ metric.metric }}</td>
-                            <td class="text-center">{{ getValue(metric.results, lhb) }}</td>
-                            <td class="text-center">{{ getValue(metric.results, rhb) }}</td>
-                            <td class="text-center">
-                                <span ng-if="metric.results.length > 1">{{ calcDelta(metric.results) }} %</span>
-                            </td>
-                            <td class="text-center">
-                                <div ng-if="metric.results.length > 1">
-                                    <a target="_blank" href="{{report}}" ng-repeat="report in getReports(metric.results)">
-                                        <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="col-md-1 col-md-offset-0">
+            <select class="form-control" ng-model="rhb" ng-options="build for build in builds">
+            </select>
         </div>
     </div>
-</body>
 
-</html>
+    <div class="col-md-10 col-md-offset-1" id="dashboard" style="display: none">
+        <div ng-repeat="comparison in comparisons">
+            <h3>{{ comparison.component }}</h3>
+
+            <table class="table-striped table-bordered table-condensed" style="width: 100%">
+                <colgroup>
+                    <col span="1" style="width: 7%;">
+                    <col span="1" style="width: 32%;">
+                    <col span="1" style="width: 19%;">
+                    <col span="1" style="width: 9%;">
+                    <col span="1" style="width: 9%;">
+                    <col span="1" style="width: 8%;">
+                    <col span="1" style="width: 9%;">
+                    <col span="1" style="width: 7%;">
+                </colgroup>
+
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Test Case</th>
+                        <th>Metric</th>
+                        <th class="text-center">{{ lhb }}</th>
+                        <th class="text-center">{{ rhb }}</th>
+                        <th class="text-center">Delta</th>
+                        <th class="text-center">Graphs</th>
+                        <th class="text-center">History</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr ng-repeat="metric in comparison.metrics">
+                        <td>
+                            <strong class="{{ status }}">
+                                {{ status = evalStatus(metric.results, metric.greaterIsBetter, metric.threshold) }}
+                            </strong>
+                        </td>
+                        <td>{{ metric.title }}</td>
+                        <td>{{ metric.metric }}</td>
+                        <td class="text-center">{{ getValue(metric.results, lhb) }}</td>
+                        <td class="text-center">{{ getValue(metric.results, rhb) }}</td>
+                        <td class="text-center">
+                            <span ng-if="metric.results.length > 1">{{ calcDelta(metric.results) }} %</span>
+                        </td>
+                        <td class="text-center">
+                            <div ng-if="metric.results.length > 1">
+                                <a target="_blank" href="{{report}}" ng-repeat="report in getReports(metric.results)">
+                                    <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+                                </a>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <a href="#history" ng-click='drawHistory(comparison.component, metric.title, metric.metric)'>
+                                <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

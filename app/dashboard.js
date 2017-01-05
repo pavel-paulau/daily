@@ -1,6 +1,12 @@
 angular
-	.module('daily', [])
-	.controller('DashboardCtrl', DashboardCtrl);
+	.module('daily', ['ngRoute'])
+	.config(function($routeProvider, $locationProvider) {
+		$locationProvider.hashPrefix('');
+		$routeProvider
+			.when('/dashboard', {templateUrl: 'static/dashboard.html', controller: DashboardCtrl})
+			.when('/history', {templateUrl: 'static/history.html'})
+			.otherwise({redirectTo: 'dashboard'});
+	});
 
 function DashboardCtrl($scope, $http) {
 	$( "#dashboard" ).show();
@@ -26,6 +32,8 @@ function DashboardCtrl($scope, $http) {
 	$scope.calcDelta = calcDelta;
 
 	$scope.getReports = getReports;
+
+	$scope.drawHistory = drawHistory;
 }
 
 function Compare($scope, $http) {

@@ -77,7 +77,7 @@ func getHistory(c *gin.Context) {
 func httpEngine() *gin.Engine {
 	router := gin.Default()
 
-	router.StaticFile("/", "./app/dashboard.html")
+	router.StaticFile("/", "./app/index.html")
 	router.Static("/static", "./app")
 
 	rg := router.Group("/api/v1")
@@ -88,7 +88,7 @@ func httpEngine() *gin.Engine {
 
 	rg.GET("comparison/:build1/:build2", compare)
 
-	rg.GET("history", getHistory)
+	rg.POST("history", getHistory)
 
 	return router
 }
