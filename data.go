@@ -82,7 +82,10 @@ type Build struct {
 func (d *dataStore) getBuilds() (*[]string, error) {
 	var builds []string
 
-	query := gocb.NewN1qlQuery("SELECT DISTINCT `build` FROM daily;")
+	query := gocb.NewN1qlQuery(
+		"SELECT DISTINCT `build` " +
+			"FROM daily " +
+			"ORDER BY `build`;")
 
 	rows, err := ds.bucket.ExecuteN1qlQuery(query, []interface{}{})
 	if err != nil {
@@ -144,4 +147,33 @@ func (d *dataStore) compare(build1, build2 string) (*[]Comparison, error) {
 	}
 
 	return &comparison, nil
+}
+
+type BuildValuePair struct {
+	Build string  `json:"build"`
+	Value float64 `json:"value"`
+}
+
+func (d *dataStore) getHistory(component, title, metric string) (*[][]interface{}, error) {
+	history := [][]interface{}{}
+
+	query := gocb.NewN1qlQuery(
+		"SELECT `build`, `value` " +
+			"FROM daily " +
+			"WHERE component = $1 AND title = $2 AND metric = $3 " +
+			"ORDER BY `build`;")
+
+	params := []interface{}{component, title, metric}
+	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
+	if err != nil {
+		return &history, err
+	}
+
+	var row Result
+	for rows.Next(&row) {
+		history = append(history, []interface{}{row.Build, row.Value})
+		row = Result{}
+	}
+
+	return &history, nil
 }

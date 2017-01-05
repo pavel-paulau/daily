@@ -44,6 +44,36 @@ func compare(c *gin.Context) {
 	c.IndentedJSON(200, comparison)
 }
 
+type payload struct {
+	Component string `json:"component"`
+	Metric    string `json:"metric"`
+	Title     string `json:"title"`
+}
+
+func getHistory(c *gin.Context) {
+	type payload struct {
+		Component string `json:"component"`
+		Metric    string `json:"metric"`
+		Title     string `json:"title"`
+	}
+	var p payload
+	if err := c.BindJSON(&p); err != nil {
+		c.IndentedJSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	if p.Component == "" || p.Title == "" || p.Metric == "" {
+		c.AbortWithError(400, errors.New("bad arguments"))
+		return
+	}
+	history, err := ds.getHistory(p.Component, p.Title, p.Metric)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	c.IndentedJSON(200, history)
+}
+
 func httpEngine() *gin.Engine {
 	router := gin.Default()
 
@@ -57,6 +87,8 @@ func httpEngine() *gin.Engine {
 	rg.GET("builds", getBuilds)
 
 	rg.GET("comparison/:build1/:build2", compare)
+
+	rg.GET("history", getHistory)
 
 	return router
 }
