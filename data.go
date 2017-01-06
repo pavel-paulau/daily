@@ -11,16 +11,15 @@ import (
 )
 
 type Benchmark struct {
-	Build           string   `json:"build"`
-	BuildURL        string   `json:"buildURL"`
-	Component       string   `json:"component"`
-	DateTime        string   `json:"dateTime"`
-	GreaterIsBetter bool     `json:"greaterIsBetter"`
-	Metric          string   `json:"metric"`
-	Snapshots       []string `json:"snapshots"`
-	Threshold       int      `json:"threshold"`
-	Title           string   `json:"title"`
-	Value           float64  `json:"value"`
+	Build     string   `json:"build"`
+	BuildURL  string   `json:"buildURL"`
+	Component string   `json:"component"`
+	DateTime  string   `json:"dateTime"`
+	Metric    string   `json:"metric"`
+	Snapshots []string `json:"snapshots"`
+	Threshold int      `json:"threshold"`
+	Title     string   `json:"title"`
+	Value     float64  `json:"value"`
 }
 
 type dataStore struct {
@@ -106,11 +105,10 @@ type Result struct {
 }
 
 type Metric struct {
-	GreaterIsBetter bool     `json:"greaterIsBetter"`
-	Metric          string   `json:"metric"`
-	Threshold       int      `json:"threshold"`
-	Title           string   `json:"title"`
-	Results         []Result `json:"results"`
+	Metric    string   `json:"metric"`
+	Threshold int      `json:"threshold"`
+	Title     string   `json:"title"`
+	Results   []Result `json:"results"`
 }
 
 type Comparison struct {
@@ -123,13 +121,13 @@ func (d *dataStore) compare(build1, build2 string) (*[]Comparison, error) {
 
 	query := gocb.NewN1qlQuery(
 		"SELECT q.component, " +
-			"ARRAY_AGG({\"metric\": q.metric, \"title\": q.title, \"greaterIsBetter\": q.greaterIsBetter, \"threshold\": q.threshold, \"results\": q.results}) AS metrics " +
+			"ARRAY_AGG({\"metric\": q.metric, \"title\": q.title, \"threshold\": q.threshold, \"results\": q.results}) AS metrics " +
 			"FROM ( " +
-			"SELECT component, title, metric, greaterIsBetter, threshold, " +
+			"SELECT component, title, metric, threshold, " +
 			"ARRAY_AGG({\"build\": `build`, \"snapshots\": snapshots, \"value\": `value`}) AS results " +
 			"FROM daily " +
 			"WHERE `build` = $1 OR `build` = $2 " +
-			"GROUP BY component, title, metric, greaterIsBetter, threshold) AS q " +
+			"GROUP BY component, title, metric, threshold) AS q " +
 			"GROUP BY q.component " +
 			"HAVING COUNT(*) > 0 " +
 			"ORDER BY q.component;")

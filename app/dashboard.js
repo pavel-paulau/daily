@@ -46,17 +46,17 @@ function Compare($scope, $http) {
 	});
 }
 
-function evalStatus(results, greaterIsBetter, threshold) {
+function evalStatus(results, threshold) {
 	if (results.length === 1) {
 		return "Incomplete";
 	}
 
 	var delta = 100 * (results[1].value / results[0].value - 1);
 
-	if (greaterIsBetter === true && delta < -threshold) {
+	if (threshold < 0 && delta < threshold) {
 		return "Failed"
 	}
-	if (greaterIsBetter === false && delta > threshold) {
+	if (threshold > 0 && delta > threshold) {
 		return "Failed"
 	}
 
