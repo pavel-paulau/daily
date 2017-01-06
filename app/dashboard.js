@@ -53,10 +53,10 @@ function evalStatus(results, greaterIsBetter, threshold) {
 
 	var delta = 100 * (results[1].value / results[0].value - 1);
 
-	if (delta < -threshold === greaterIsBetter) {
+	if (greaterIsBetter === true && delta < -threshold) {
 		return "Failed"
 	}
-	if (delta > threshold === greaterIsBetter) {
+	if (greaterIsBetter === false && delta > threshold) {
 		return "Failed"
 	}
 
