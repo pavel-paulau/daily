@@ -8,9 +8,19 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
+func evalStatus(delta, threshold float64) string {
+	if threshold < 0 && delta < threshold {
+		return "Failed"
+	}
+	if threshold > 0 && delta > threshold {
+		return "Failed"
+	}
+	return "Passed"
+}
+
 func renderReport(writer io.Writer, b1, b2 string, reports []Report) {
 	table := tablewriter.NewWriter(writer)
-	table.SetHeader([]string{"Component", "Test Case", "Metric", b1, b2, "Delta"})
+	table.SetHeader([]string{"Component", "Test Case", "Metric", b1, b2, "Delta", "Status"})
 	table.SetAutoWrapText(false)
 	table.SetAlignment(tablewriter.ALIGN_LEFT)
 
@@ -24,7 +34,9 @@ func renderReport(writer io.Writer, b1, b2 string, reports []Report) {
 			delta = "+" + delta
 		}
 
-		row := []string{r.Component, r.TestCase, r.Metric, v1, v2, delta}
+		status := evalStatus(deltaF, float64(r.Threshold))
+
+		row := []string{r.Component, r.TestCase, r.Metric, v1, v2, delta, status}
 
 		table.Append(row)
 	}

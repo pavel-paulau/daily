@@ -172,6 +172,7 @@ type Report struct {
 	Component string   `json:"component"`
 	Metric    string   `json:"metric"`
 	TestCase  string   `json:"testCase"`
+	Threshold int      `json:"threshold"`
 	Results   []Result `json:"results"`
 }
 
@@ -184,10 +185,10 @@ func (d *dataStore) getReport(build string) (string, []Report, error) {
 	}
 
 	query := gocb.NewN1qlQuery(
-		"SELECT component, testCase, metric, ARRAY_AGG({\"build\": `build`, \"value\": `value`}) AS results " +
+		"SELECT component, testCase, metric, threshold, ARRAY_AGG({\"build\": `build`, \"value\": `value`}) AS results " +
 			"FROM daily " +
 			"WHERE `build` = $1 OR `build` = $2 " +
-			"GROUP BY component, testCase, metric " +
+			"GROUP BY component, testCase, metric, threshold " +
 			"HAVING COUNT(*) > 1 " +
 			"ORDER BY component, testCase;")
 
