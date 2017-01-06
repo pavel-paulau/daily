@@ -51,7 +51,7 @@
                                 {{ status = evalStatus(metric.results, metric.threshold) }}
                             </strong>
                         </td>
-                        <td>{{ metric.title }}</td>
+                        <td>{{ metric._testCase }}</td>
                         <td>{{ metric.metric }}</td>
                         <td class="text-center">{{ getValue(metric.results, lhb) }}</td>
                         <td class="text-center">{{ getValue(metric.results, rhb) }}</td>
@@ -66,7 +66,7 @@
                             </div>
                         </td>
                         <td class="text-center">
-                            <a href="#history" ng-click='drawHistory(comparison.component, metric.title, metric.metric)'>
+                            <a href="#history" ng-click='drawHistory(comparison.component, metric._testCase, metric.metric)'>
                                 <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
                             </a>
                         </td>

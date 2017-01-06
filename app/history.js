@@ -36,8 +36,8 @@ var chartOptions = {
 	height: 700
 }
 
-function drawHistory(component, title, metric) {
-	var data = JSON.stringify({component: component, title: title, metric: metric});
+function drawHistory(component, testCase, metric) {
+	var data = JSON.stringify({component: component, testCase: testCase, metric: metric});
 
 	$.post('api/v1/history', data, function(response) {
 		var chartData = new google.visualization.DataTable();
@@ -49,7 +49,7 @@ function drawHistory(component, title, metric) {
 		div.id = 'history';
 		$('#charts').append(div);
 
-		chartOptions.title = title;
+		chartOptions.title = testCase;
 		chartOptions.vAxis.title = metric;
 
 		var lineChart = new google.visualization.LineChart(document.getElementById(div.id));

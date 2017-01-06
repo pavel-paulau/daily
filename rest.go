@@ -44,17 +44,11 @@ func compare(c *gin.Context) {
 	c.IndentedJSON(200, comparison)
 }
 
-type payload struct {
-	Component string `json:"component"`
-	Metric    string `json:"metric"`
-	Title     string `json:"title"`
-}
-
 func getHistory(c *gin.Context) {
 	type payload struct {
 		Component string `json:"component"`
 		Metric    string `json:"metric"`
-		Title     string `json:"title"`
+		TestCase  string `json:"testCase"`
 	}
 	var p payload
 	if err := c.BindJSON(&p); err != nil {
@@ -62,11 +56,11 @@ func getHistory(c *gin.Context) {
 		return
 	}
 
-	if p.Component == "" || p.Title == "" || p.Metric == "" {
+	if p.Component == "" || p.TestCase == "" || p.Metric == "" {
 		c.AbortWithError(400, errors.New("bad arguments"))
 		return
 	}
-	history, err := ds.getHistory(p.Component, p.Title, p.Metric)
+	history, err := ds.getHistory(p.Component, p.TestCase, p.Metric)
 	if err != nil {
 		c.AbortWithError(500, err)
 		return

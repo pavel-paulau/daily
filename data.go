@@ -18,7 +18,7 @@ type Benchmark struct {
 	Metric    string   `json:"metric"`
 	Snapshots []string `json:"snapshots"`
 	Threshold int      `json:"threshold"`
-	Title     string   `json:"title"`
+	TestCase  string   `json:"testCase"`
 	Value     float64  `json:"value"`
 }
 
@@ -64,7 +64,7 @@ func hash(strings ...string) string {
 }
 
 func (d *dataStore) addBenchmark(b *Benchmark) error {
-	docId := hash(b.Component, b.Title, b.Metric, b.Build)
+	docId := hash(b.Component, b.TestCase, b.Metric, b.Build)
 
 	_, err := d.bucket.Upsert(docId, b, 0)
 	if err != nil {
@@ -106,8 +106,8 @@ type Result struct {
 
 type Metric struct {
 	Metric    string   `json:"metric"`
+	TestCase  string   `json:"_testCase"`
 	Threshold int      `json:"threshold"`
-	Title     string   `json:"title"`
 	Results   []Result `json:"results"`
 }
 
@@ -121,13 +121,13 @@ func (d *dataStore) compare(build1, build2 string) (*[]Comparison, error) {
 
 	query := gocb.NewN1qlQuery(
 		"SELECT q.component, " +
-			"ARRAY_AGG({\"metric\": q.metric, \"title\": q.title, \"threshold\": q.threshold, \"results\": q.results}) AS metrics " +
+			"ARRAY_AGG({\"metric\": q.metric, \"_testCase\": q.testCase, \"threshold\": q.threshold, \"results\": q.results}) AS metrics " +
 			"FROM ( " +
-			"SELECT component, title, metric, threshold, " +
+			"SELECT component, metric, testCase, threshold, " +
 			"ARRAY_AGG({\"build\": `build`, \"snapshots\": snapshots, \"value\": `value`}) AS results " +
 			"FROM daily " +
 			"WHERE `build` = $1 OR `build` = $2 " +
-			"GROUP BY component, title, metric, threshold) AS q " +
+			"GROUP BY component, metric, testCase, threshold) AS q " +
 			"GROUP BY q.component " +
 			"HAVING COUNT(*) > 0 " +
 			"ORDER BY q.component;")
@@ -152,16 +152,16 @@ type BuildValuePair struct {
 	Value float64 `json:"value"`
 }
 
-func (d *dataStore) getHistory(component, title, metric string) (*[][]interface{}, error) {
+func (d *dataStore) getHistory(component, testCase, metric string) (*[][]interface{}, error) {
 	history := [][]interface{}{}
 
 	query := gocb.NewN1qlQuery(
 		"SELECT `build`, `value` " +
 			"FROM daily " +
-			"WHERE component = $1 AND title = $2 AND metric = $3 " +
+			"WHERE component = $1 AND testCase = $2 AND metric = $3 " +
 			"ORDER BY `build`;")
 
-	params := []interface{}{component, title, metric}
+	params := []interface{}{component, testCase, metric}
 	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
 	if err != nil {
 		return &history, err
