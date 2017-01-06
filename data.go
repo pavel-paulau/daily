@@ -88,7 +88,7 @@ func (d *dataStore) getBuilds() (*[]string, error) {
 
 	rows, err := ds.bucket.ExecuteN1qlQuery(query, []interface{}{})
 	if err != nil {
-		return &builds, err
+		return nil, err
 	}
 
 	var row Build
@@ -135,7 +135,7 @@ func (d *dataStore) compare(build1, build2 string) (*[]Comparison, error) {
 
 	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
 	if err != nil {
-		return &comparison, err
+		return nil, err
 	}
 
 	var row Comparison
@@ -147,9 +147,63 @@ func (d *dataStore) compare(build1, build2 string) (*[]Comparison, error) {
 	return &comparison, nil
 }
 
-type BuildValuePair struct {
-	Build string  `json:"build"`
-	Value float64 `json:"value"`
+func (d *dataStore) findPrevBuild(build string) (string, error) {
+	previousBuild := ""
+
+	query := gocb.NewN1qlQuery(
+		"SELECT DISTINCT `build` " +
+			"FROM daily " +
+			"WHERE `build` < $1 " +
+			"ORDER BY `build` DESC " +
+			"LIMIT 1;")
+
+	params := []interface{}{build}
+	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
+	if err != nil {
+		return previousBuild, err
+	}
+
+	var row Result
+	err = rows.One(&row)
+	return row.Build, err
+}
+
+type Report struct {
+	Component string   `json:"component"`
+	Metric    string   `json:"metric"`
+	TestCase  string   `json:"testCase"`
+	Results   []Result `json:"results"`
+}
+
+func (d *dataStore) getReport(build string) (string, []Report, error) {
+	reports := []Report{}
+
+	prevBuild, err := ds.findPrevBuild(build)
+	if err != nil {
+		return prevBuild, reports, err
+	}
+
+	query := gocb.NewN1qlQuery(
+		"SELECT component, testCase, metric, ARRAY_AGG({\"build\": `build`, \"value\": `value`}) AS results " +
+			"FROM daily " +
+			"WHERE `build` = $1 OR `build` = $2 " +
+			"GROUP BY component, testCase, metric " +
+			"HAVING COUNT(*) > 1 " +
+			"ORDER BY component, testCase;")
+
+	params := []interface{}{prevBuild, build}
+	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
+	if err != nil {
+		return prevBuild, reports, err
+	}
+
+	var row Report
+	for rows.Next(&row) {
+		reports = append(reports, row)
+		row = Report{}
+	}
+
+	return prevBuild, reports, err
 }
 
 func (d *dataStore) getHistory(component, testCase, metric string) (*[][]interface{}, error) {
@@ -164,7 +218,7 @@ func (d *dataStore) getHistory(component, testCase, metric string) (*[][]interfa
 	params := []interface{}{component, testCase, metric}
 	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
 	if err != nil {
-		return &history, err
+		return nil, err
 	}
 
 	var row Result

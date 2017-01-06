@@ -33,7 +33,7 @@ func compare(c *gin.Context) {
 	build1 := c.Param("build1")
 	build2 := c.Param("build2")
 	if build1 == "" || build2 == "" {
-		c.AbortWithError(400, errors.New("bad arguments"))
+		c.AbortWithError(400, errors.New("missing arguments"))
 		return
 	}
 	comparison, err := ds.compare(build1, build2)
@@ -42,6 +42,21 @@ func compare(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(200, comparison)
+}
+
+func getReport(c *gin.Context) {
+	build := c.Param("build")
+	if build == "" {
+		c.AbortWithError(400, errors.New("missing arguments"))
+		return
+	}
+	prevBuild, reports, err := ds.getReport(build)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+
+	renderReport(c.Writer, prevBuild, build, reports)
 }
 
 func getHistory(c *gin.Context) {
@@ -57,7 +72,7 @@ func getHistory(c *gin.Context) {
 	}
 
 	if p.Component == "" || p.TestCase == "" || p.Metric == "" {
-		c.AbortWithError(400, errors.New("bad arguments"))
+		c.AbortWithError(400, errors.New("missing arguments"))
 		return
 	}
 	history, err := ds.getHistory(p.Component, p.TestCase, p.Metric)
@@ -81,6 +96,8 @@ func httpEngine() *gin.Engine {
 	rg.GET("builds", getBuilds)
 
 	rg.GET("comparison/:build1/:build2", compare)
+
+	rg.GET("report/:build", getReport)
 
 	rg.POST("history", getHistory)
 

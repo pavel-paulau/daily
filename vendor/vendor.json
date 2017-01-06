@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "gkmNzd70s3iGN64LzAnLMaTfCdQ=",
+			"path": "github.com/dustin/go-humanize",
+			"revision": "904a49491cd5fb5cba832fac98e7e87d56b690a4",
+			"revisionTime": "2017-01-06T16:08:01Z"
+		},
+		{
 			"checksumSHA1": "RsNwOto8G8aXIiRrlFn4dtU9q/g=",
 			"path": "github.com/gin-gonic/gin",
 			"revision": "e2212d40c62a98b388a5eb48ecbdcf88534688ba",
@@ -43,6 +49,18 @@
 			"path": "github.com/mattn/go-isatty",
 			"revision": "30a891c33c7cde7b02a981314b4228ec99380cca",
 			"revisionTime": "2016-11-23T14:36:37Z"
+		},
+		{
+			"checksumSHA1": "yf185lmVPcvXjLZuPT1s4JzxI18=",
+			"path": "github.com/mattn/go-runewidth",
+			"revision": "737072b4e32b7a5018b4a7125da8d12de90e8045",
+			"revisionTime": "2016-10-12T01:35:12Z"
+		},
+		{
+			"checksumSHA1": "4+01HaD0/pVQLzk7nWmoJwolfrY=",
+			"path": "github.com/olekukonko/tablewriter",
+			"revision": "44e365d423f4f06769182abfeeae2b91be9d529b",
+			"revisionTime": "2016-12-29T08:21:16Z"
 		},
 		{
 			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
