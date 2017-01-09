@@ -207,8 +207,37 @@ func (d *dataStore) getReport(build string) (string, []Report, error) {
 	return prevBuild, reports, err
 }
 
-func (d *dataStore) getHistory(component, testCase, metric string) (*[][]interface{}, error) {
-	history := [][]interface{}{}
+type History struct {
+	Build    string  `json:"build"`
+	BuildURL string  `json:"buildURL"`
+	Value    float64 `json:"value"`
+}
+
+func (d *dataStore) getHistory(component, testCase, metric string) (*[]History, error) {
+	history := []History{}
+
+	query := gocb.NewN1qlQuery(
+		"SELECT `build`, buildURL, `value` " +
+			"FROM daily " +
+			"WHERE component = $1 AND testCase = $2 AND metric = $3 " +
+			"ORDER BY `build` DESC;")
+
+	params := []interface{}{component, testCase, metric}
+	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
+	if err != nil {
+		return nil, err
+	}
+
+	var row History
+	for rows.Next(&row) {
+		history = append(history, row)
+	}
+
+	return &history, nil
+}
+
+func (d *dataStore) getTimeline(component, testCase, metric string) (*[][]interface{}, error) {
+	timeline := [][]interface{}{}
 
 	query := gocb.NewN1qlQuery(
 		"SELECT `build`, `value` " +
@@ -224,9 +253,9 @@ func (d *dataStore) getHistory(component, testCase, metric string) (*[][]interfa
 
 	var row Result
 	for rows.Next(&row) {
-		history = append(history, []interface{}{row.Build, row.Value})
+		timeline = append(timeline, []interface{}{row.Build, row.Value})
 		row = Result{}
 	}
 
-	return &history, nil
+	return &timeline, nil
 }

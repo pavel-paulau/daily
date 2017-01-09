@@ -1,7 +1,37 @@
 <div class="masthead text-center">
-    <h2>Build History</h2>
+    <h2>{{ title }}</h2>
 </div>
 
-<div class="col-xs-10 col-xs-offset-1">
+<div class="col-md-8 col-md-offset-1">
     <div id="charts"></div>
+</div>
+
+<div class="col-md-2">
+    <table class="table-striped table-bordered table-condensed" style="width: 100%; margin-top: 75px;">
+        <colgroup>
+            <col span="1" style="width: 35%;">
+            <col span="1" style="width: 35%;">
+            <col span="1" style="width: 30%;">
+        </colgroup>
+
+        <thead>
+            <tr>
+                <th class="text-center">Build</th>
+                <th class="text-center">Value</th>
+                <th class="text-center">Logs</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr ng-repeat="benchmark in history">
+                <td class="text-center">{{ benchmark.build }}</td>
+                <td class="text-center">{{ benchmark.value.toLocaleString() }}</td>
+                <td class="text-center">
+                    <a href="{{ benchmark.buildURL }}"
+                        target="_blank">
+                        <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                    </a>
+            </tr>
+        </tbody>
+    </table>
 </div>

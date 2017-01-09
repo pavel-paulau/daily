@@ -60,22 +60,32 @@ func getReport(c *gin.Context) {
 }
 
 func getHistory(c *gin.Context) {
-	type payload struct {
-		Component string `json:"component"`
-		Metric    string `json:"metric"`
-		TestCase  string `json:"testCase"`
-	}
-	var p payload
-	if err := c.BindJSON(&p); err != nil {
-		c.IndentedJSON(400, gin.H{"message": err.Error()})
-		return
-	}
+	component := c.Query("component")
+	testCase := c.Query("testCase")
+	metric := c.Query("metric")
 
-	if p.Component == "" || p.TestCase == "" || p.Metric == "" {
+	if component == "" || testCase == "" || metric == "" {
 		c.AbortWithError(400, errors.New("missing arguments"))
 		return
 	}
-	history, err := ds.getHistory(p.Component, p.TestCase, p.Metric)
+	history, err := ds.getHistory(component, testCase, metric)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	c.IndentedJSON(200, history)
+}
+
+func getTimeline(c *gin.Context) {
+	component := c.Query("component")
+	testCase := c.Query("testCase")
+	metric := c.Query("metric")
+
+	if component == "" || testCase == "" || metric == "" {
+		c.AbortWithError(400, errors.New("missing arguments"))
+		return
+	}
+	history, err := ds.getTimeline(component, testCase, metric)
 	if err != nil {
 		c.AbortWithError(500, err)
 		return
@@ -99,7 +109,9 @@ func httpEngine() *gin.Engine {
 
 	rg.GET("report/:build", getReport)
 
-	rg.POST("history", getHistory)
+	rg.GET("history", getHistory)
+
+	rg.GET("timeline", getTimeline)
 
 	return router
 }

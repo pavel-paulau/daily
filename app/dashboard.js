@@ -1,14 +1,28 @@
 angular
 	.module('daily', ['ngRoute'])
+	.service('historyParams', function() {
+		var component, testCase, metric;
+
+		return {
+			getParams: function() {
+				return {component: component, testCase: testCase, metric: metric};
+			},
+			setParams: function(_component, _testCase, _metric) {
+				component = _component;
+				testCase = _testCase;
+				metric = _metric;
+			}
+		}
+	})
 	.config(function($routeProvider, $locationProvider) {
 		$locationProvider.hashPrefix('');
 		$routeProvider
 			.when('/dashboard', {templateUrl: 'static/dashboard.html', controller: DashboardCtrl})
-			.when('/history', {templateUrl: 'static/history.html'})
+			.when('/history', {templateUrl: 'static/history.html', controller: HistoryCtrl})
 			.otherwise({redirectTo: 'dashboard'});
 	});
 
-function DashboardCtrl($scope, $http) {
+function DashboardCtrl($scope, $http, historyParams) {
 	$( "#dashboard" ).show();
 
 	$http.get('api/v1/builds').then(function(response) {
@@ -37,7 +51,9 @@ function DashboardCtrl($scope, $http) {
 
 	$scope.getReports = getReports;
 
-	$scope.drawHistory = drawHistory;
+	$scope.showHistory = function(component, testCase, metric) {
+		historyParams.setParams(component, testCase, metric);
+	};
 }
 
 function Compare($scope, $http) {
