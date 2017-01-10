@@ -84,6 +84,7 @@ func (d *dataStore) getBuilds() (*[]string, error) {
 	query := gocb.NewN1qlQuery(
 		"SELECT DISTINCT `build` " +
 			"FROM daily " +
+			"WHERE `build` IS NOT MISSING " +
 			"ORDER BY `build`;")
 
 	rows, err := ds.bucket.ExecuteN1qlQuery(query, []interface{}{})
