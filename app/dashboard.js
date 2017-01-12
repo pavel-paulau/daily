@@ -27,8 +27,8 @@ function DashboardCtrl($scope, $http, historyParams) {
 
 	$http.get('api/v1/builds').then(function(response) {
 		$scope.builds = response.data;
-		if ($scope.builds.indexOf('4.6.0-3572') !== -1) {
-			$scope.lhb = '4.6.0-3572';
+		if ($scope.builds.indexOf('4.6.0-3573') !== -1) {
+			$scope.lhb = '4.6.0-3573';
 		} else {
 			$scope.lhb = $scope.builds[0];
 		};
