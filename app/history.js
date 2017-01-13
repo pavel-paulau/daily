@@ -3,7 +3,7 @@ var chartOptions = {
 		width: '100%',
 		height: '100%',
 		top: 75,
-		right: 0,
+		right: 15,
 		left: 75,
 		bottom: 100
 	},
