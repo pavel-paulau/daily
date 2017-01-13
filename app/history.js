@@ -41,8 +41,14 @@ var chartOptions = {
 	pointsVisible: true
 }
 
-function HistoryCtrl($scope, $http, historyParams) {
-	var params = historyParams.getParams();
+function HistoryCtrl($scope, $http, $routeParams) {
+	routeParams = $routeParams.params.split('|');
+
+	var params = {
+		component: routeParams[0],
+		testCase: routeParams[1],
+		metric: routeParams[2]
+	};
 
 	$scope.title = params.component + ' : ' + params.testCase;
 

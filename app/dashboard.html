@@ -60,13 +60,13 @@
                         </td>
                         <td class="text-center">
                             <div ng-if="metric.results.length > 1">
-                                <a target="_blank" href="{{report}}" ng-repeat="report in getReports(metric.results)">
+                                <a target="_blank" href="{{ report }}" ng-repeat="report in getReports(metric.results)">
                                     <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
                                 </a>
                             </div>
                         </td>
                         <td class="text-center">
-                            <a href="#history" ng-click='showHistory(comparison.component, metric._testCase, metric.metric)'>
+                            <a href="#history/{{ comparison.component }}|{{ metric._testCase }}|{{ metric.metric }}">
                                 <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
                             </a>
                         </td>
