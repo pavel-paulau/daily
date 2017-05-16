@@ -22,14 +22,12 @@ function DashboardCtrl($scope, $http) {
 	});
 
 	$scope.$watch('lhb', function() {
-		Compare($scope, $http);
+		compare($scope, $http);
 	});
 
 	$scope.$watch('rhb', function() {
-		Compare($scope, $http);
+		compare($scope, $http);
 	});
-
-	$scope.evalStatus = evalStatus;
 
 	$scope.getValue = getValue;
 
@@ -38,31 +36,14 @@ function DashboardCtrl($scope, $http) {
 	$scope.getReports = getReports;
 }
 
-function Compare($scope, $http) {
-	if ( $scope.lhb === undefined || $scope.rhb === undefined ) {
+function compare($scope, $http) {
+	if ($scope.lhb === undefined || $scope.rhb === undefined) {
 		return;
 	}
 
 	$http.get('api/v1/comparison/' + $scope.lhb + '/' + $scope.rhb).then(function(response) {
 		$scope.comparisons = response.data;
 	});
-}
-
-function evalStatus(results, threshold) {
-	if (results.length === 1) {
-		return "Incomplete";
-	}
-
-	var delta = 100 * (results[1].value / results[0].value - 1);
-
-	if (threshold < 0 && delta < threshold) {
-		return "Failed"
-	}
-	if (threshold > 0 && delta > threshold) {
-		return "Failed"
-	}
-
-	return "Passed";
 }
 
 function getValue(results, build) {

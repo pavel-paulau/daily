@@ -41,6 +41,7 @@ func compare(c *gin.Context) {
 		c.AbortWithError(500, err)
 		return
 	}
+	ds.evalStatus(build1, build2, comparison)
 	c.IndentedJSON(200, comparison)
 }
 

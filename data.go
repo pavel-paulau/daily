@@ -99,6 +99,76 @@ func (d *dataStore) getBuilds() (*[]string, error) {
 	return &builds, nil
 }
 
+type Range struct {
+	Max string `json:"max"`
+	Min string `json:"min"`
+}
+
+func (d *dataStore) getRange(testCase string) (*Range, error) {
+	query := gocb.NewN1qlQuery(
+		"SELECT MAX(`build`) AS `max`, MIN(`build`) AS `min` " +
+			"FROM daily " +
+			"WHERE testCase = $1;")
+
+	params := []interface{}{testCase}
+	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
+	if err != nil {
+		return nil, err
+	}
+
+	var row Range
+	for rows.Next(&row) {
+		return &row, nil
+	}
+	return nil, nil
+}
+
+func (d *dataStore) evalIncomplete(metric *Metric, build1, build2 string) string {
+	buildRange, err := d.getRange(metric.TestCase)
+	if err != nil {
+		return "Incomplete"
+	}
+
+	var missingBuild string
+	if metric.Results[0].Build == build1 {
+		missingBuild = build2
+	} else {
+		missingBuild = build1
+	}
+
+	if missingBuild < buildRange.Min {
+		return "New Feature"
+	}
+	return "Incomplete"
+}
+
+func (d *dataStore) evalComplete(metric *Metric) string {
+	delta := 100 * (metric.Results[1].Value/metric.Results[0].Value - 1)
+
+	if metric.Threshold < 0 && delta < metric.Threshold {
+		return "Failed"
+	}
+	if metric.Threshold > 0 && delta > metric.Threshold {
+		return "Failed"
+	}
+
+	return "Passed"
+}
+
+func (d *dataStore) evalStatus(build1, build2 string, comparison *[]Comparison) {
+	for i, item := range *comparison {
+		for j, metric := range item.Metrics {
+			var status string
+			if len(metric.Results) == 1 {
+				status = d.evalIncomplete(&metric, build1, build2)
+			} else {
+				status = d.evalComplete(&metric)
+			}
+			(*comparison)[i].Metrics[j].Status = status
+		}
+	}
+}
+
 type Result struct {
 	Build     string   `json:"build"`
 	Snapshots []string `json:"snapshots"`
@@ -108,8 +178,9 @@ type Result struct {
 type Metric struct {
 	Metric    string   `json:"metric"`
 	TestCase  string   `json:"_testCase"`
-	Threshold int      `json:"threshold"`
+	Threshold float64  `json:"threshold"`
 	Results   []Result `json:"results"`
+	Status    string   `json:"status"`
 }
 
 type Comparison struct {

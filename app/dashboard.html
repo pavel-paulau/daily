@@ -47,8 +47,8 @@
                 <tbody>
                     <tr ng-repeat="metric in comparison.metrics">
                         <td>
-                            <strong class="{{ status }}">
-                                {{ status = evalStatus(metric.results, metric.threshold) }}
+                            <strong class="{{ status.replace(' ', '-') }}">
+                                {{ status = metric.status }}
                             </strong>
                         </td>
                         <td>{{ metric._testCase }}</td>
