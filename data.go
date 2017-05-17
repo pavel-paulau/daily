@@ -223,11 +223,9 @@ func (d *dataStore) findPrevBuild(build string) (string, error) {
 	previousBuild := ""
 
 	query := gocb.NewN1qlQuery(
-		"SELECT DISTINCT `build` " +
+		"SELECT MAX(`build`) AS `build` " +
 			"FROM daily " +
-			"WHERE `build` < $1 " +
-			"ORDER BY `build` DESC " +
-			"LIMIT 1;")
+			"WHERE `build` < $1;")
 
 	params := []interface{}{build}
 	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
