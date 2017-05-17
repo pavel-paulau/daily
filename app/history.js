@@ -39,7 +39,11 @@ var chartOptions = {
 	},
 	pointShape: 'diamond',
 	pointSize: 4,
-	pointsVisible: true
+	pointsVisible: true,
+	crosshair: {
+		orientation: 'horizontal',
+		trigger: 'both'
+	}
 }
 
 function HistoryCtrl($scope, $http, $routeParams) {
