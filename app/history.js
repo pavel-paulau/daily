@@ -38,6 +38,7 @@ var chartOptions = {
 		}
 	},
 	pointShape: 'diamond',
+	pointSize: 4,
 	pointsVisible: true
 }
 
