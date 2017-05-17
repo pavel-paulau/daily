@@ -18,11 +18,24 @@ func evalStatus(delta, threshold float64) string {
 	return "Passed"
 }
 
-func renderReport(writer io.Writer, b1, b2 string, reports []Report) {
+func newTable(writer io.Writer, b1, b2 string) *tablewriter.Table {
 	table := tablewriter.NewWriter(writer)
-	table.SetHeader([]string{"Component", "Test Case", "Metric", b1, b2, "Delta", "Status"})
 	table.SetAutoWrapText(false)
 	table.SetAlignment(tablewriter.ALIGN_LEFT)
+	table.SetHeader([]string{"Component", "Test Case", "Metric", b1, b2, "Delta", "Status"})
+
+	return table
+}
+
+func newSeparator() []string {
+	return []string{"", "", "", "", "", "", ""}
+}
+
+func generateRows(reports []Report) map[string][][]string {
+	rows := map[string][][]string{
+		"Failed": {},
+		"Passed": {},
+	}
 
 	for _, r := range reports {
 		v1 := humanize.Commaf(r.Results[0].Value)
@@ -38,7 +51,20 @@ func renderReport(writer io.Writer, b1, b2 string, reports []Report) {
 
 		row := []string{r.Component, r.TestCase, r.Metric, v1, v2, delta, status}
 
-		table.Append(row)
+		rows[status] = append(rows[status], row)
 	}
+	return rows
+}
+
+func renderReport(writer io.Writer, b1, b2 string, reports []Report) {
+	table := newTable(writer, b1, b2)
+	rows := generateRows(reports)
+
+	table.AppendBulk(rows["Failed"])
+	if len(rows["Failed"]) > 0 {
+		table.Append(newSeparator())
+	}
+	table.AppendBulk(rows["Passed"])
+
 	table.Render()
 }
