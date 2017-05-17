@@ -117,10 +117,8 @@ func (d *dataStore) getRange(testCase string) (*Range, error) {
 	}
 
 	var row Range
-	for rows.Next(&row) {
-		return &row, nil
-	}
-	return nil, nil
+	err = rows.One(&row)
+	return &row, err
 }
 
 func (d *dataStore) evalIncomplete(metric *Metric, build1, build2 string) string {
