@@ -217,62 +217,64 @@ func (d *dataStore) compare(build1, build2 string) (*[]Comparison, error) {
 	return &comparison, nil
 }
 
-func (d *dataStore) findPrevBuild(build string) (string, error) {
-	previousBuild := ""
-
+func (d *dataStore) calcMovingAverage(build, testCase string) (float64, error) {
 	query := gocb.NewN1qlQuery(
-		"SELECT MAX(`build`) AS `build` " +
+		"SELECT AVG(v.`value`) AS `value` " +
+			"FROM (" +
+			"SELECT `value` " +
 			"FROM daily " +
-			"WHERE `build` < $1;")
+			"USE INDEX (daily_ma) " +
+			"WHERE `build` < $1 " +
+			"AND testCase = $2 " +
+			"ORDER BY `build` DESC " +
+			"LIMIT 3) v;")
 
-	params := []interface{}{build}
+	params := []interface{}{build, testCase}
 	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
 	if err != nil {
-		return previousBuild, err
+		return 0, err
 	}
 
 	var row Result
 	err = rows.One(&row)
-	return row.Build, err
+	return row.Value, err
 }
 
 type Report struct {
-	Component string   `json:"component"`
-	Metric    string   `json:"metric"`
-	TestCase  string   `json:"testCase"`
-	Threshold int      `json:"threshold"`
-	Results   []Result `json:"results"`
+	Component     string  `json:"component"`
+	Metric        string  `json:"metric"`
+	MovingAverage float64 `json:"movingAverage"`
+	TestCase      string  `json:"testCase"`
+	Threshold     int     `json:"threshold"`
+	Value         float64 `json:"value"`
 }
 
-func (d *dataStore) getReport(build string) (string, []Report, error) {
+func (d *dataStore) getReport(build string) ([]Report, error) {
 	reports := []Report{}
 
-	prevBuild, err := ds.findPrevBuild(build)
-	if err != nil {
-		return prevBuild, reports, err
-	}
-
 	query := gocb.NewN1qlQuery(
-		"SELECT component, testCase, metric, threshold, ARRAY_AGG({\"build\": `build`, \"value\": `value`}) AS results " +
+		"SELECT component, testCase, metric, threshold, `value` " +
 			"FROM daily " +
-			"WHERE `build` = $1 OR `build` = $2 " +
-			"GROUP BY component, testCase, metric, threshold " +
-			"HAVING COUNT(*) > 1 " +
+			"WHERE `build` = $1 " +
 			"ORDER BY component, testCase;")
 
-	params := []interface{}{prevBuild, build}
+	params := []interface{}{build}
 	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
 	if err != nil {
-		return prevBuild, reports, err
+		return reports, err
 	}
 
 	var row Report
 	for rows.Next(&row) {
-		reports = append(reports, row)
+		ma, err := d.calcMovingAverage(build, row.TestCase)
+		if err == nil && ma > 0 {
+			row.MovingAverage = ma
+			reports = append(reports, row)
+		}
 		row = Report{}
 	}
 
-	return prevBuild, reports, err
+	return reports, err
 }
 
 type History struct {
