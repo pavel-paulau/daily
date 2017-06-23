@@ -168,9 +168,11 @@ func (d *dataStore) evalStatus(build1, build2 string, comparison *[]Comparison) 
 }
 
 type Result struct {
-	Build     string   `json:"build"`
-	Snapshots []string `json:"snapshots"`
-	Value     float64  `json:"value"`
+	Build          string      `json:"build"`
+	Snapshots      []string    `json:"snapshots"`
+	Value          float64     `json:"value"`
+	Annotation     interface{} `json:"annotation"`
+	AnnotationText interface{} `json:"annotationText"`
 }
 
 type Metric struct {
@@ -289,6 +291,7 @@ func (d *dataStore) getHistory(component, testCase, metric string) (*[]History, 
 	query := gocb.NewN1qlQuery(
 		"SELECT `build`, buildURL, `value` " +
 			"FROM daily " +
+			"USE INDEX (daily_view) " +
 			"WHERE component = $1 AND testCase = $2 AND metric = $3 " +
 			"ORDER BY `build` DESC;")
 
@@ -310,8 +313,9 @@ func (d *dataStore) getTimeline(component, testCase, metric string) (*[][]interf
 	timeline := [][]interface{}{}
 
 	query := gocb.NewN1qlQuery(
-		"SELECT `build`, `value` " +
+		"SELECT `build`, `value`, annotation, annotationText " +
 			"FROM daily " +
+			"USE INDEX (daily_view) " +
 			"WHERE component = $1 AND testCase = $2 AND metric = $3 " +
 			"ORDER BY `build`;")
 
@@ -323,7 +327,7 @@ func (d *dataStore) getTimeline(component, testCase, metric string) (*[][]interf
 
 	var row Result
 	for rows.Next(&row) {
-		timeline = append(timeline, []interface{}{row.Build, row.Value})
+		timeline = append(timeline, []interface{}{row.Build, row.Value, row.Annotation, row.AnnotationText})
 		row = Result{}
 	}
 

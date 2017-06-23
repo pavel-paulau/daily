@@ -43,6 +43,16 @@ var chartOptions = {
 	crosshair: {
 		orientation: 'horizontal',
 		trigger: 'both'
+	},
+	annotations: {
+		stem: {
+			length: 125
+		},
+		textStyle: {
+			bold: true,
+			color: 'black',
+			fontSize: 13
+		}
 	}
 }
 
@@ -61,6 +71,8 @@ function HistoryCtrl($scope, $http, $routeParams) {
 		var chartData = new google.visualization.DataTable();
 		chartData.addColumn('string');
 		chartData.addColumn('number');
+		chartData.addColumn({type: 'string', role: 'annotation'});
+		chartData.addColumn({type: 'string', role: 'annotationText', p: {html: true}});
 		chartData.addRows(response.data);
 
 		var div = document.createElement('div');
