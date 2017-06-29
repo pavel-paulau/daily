@@ -51,13 +51,19 @@ func getReport(c *gin.Context) {
 		c.AbortWithError(400, errors.New("missing arguments"))
 		return
 	}
-	reports, err := ds.getReport(build)
+	reports, err := ds.getReports(build)
 	if err != nil {
 		c.AbortWithError(500, err)
 		return
 	}
 
-	renderReport(c.Writer, reports)
+	testCases, err := ds.getAllCases()
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+
+	renderReport(c.Writer, reports, testCases)
 }
 
 func getHistory(c *gin.Context) {

@@ -31,10 +31,30 @@ func newSeparator() []string {
 	return []string{"", "", "", "", "", ""}
 }
 
-func generateRows(reports []Report) map[string][][]string {
+func addMissing(rows map[string][][]string, tc TestCase) {
+	row := []string{tc.Component, tc.TestCase, tc.Metric, "N/A", "N/A", "Missing"}
+	rows["Missing"] = append(rows["Missing"], row)
+}
+
+func generateRows(reports []Report, testCases []TestCase) map[string][][]string {
 	rows := map[string][][]string{
+		"Missing": {},
 		"Failed": {},
 		"Passed": {},
+	}
+
+	i := 0
+	for _, tc := range testCases {
+		if i >= len(reports) {
+			addMissing(rows, tc)
+			continue
+		}
+		r := reports[i]
+		if tc.Component != tc.Component || tc.TestCase != r.TestCase {
+			addMissing(rows, tc)
+			continue
+		}
+		i++
 	}
 
 	for _, r := range reports {
@@ -55,15 +75,16 @@ func generateRows(reports []Report) map[string][][]string {
 	return rows
 }
 
-func renderReport(writer io.Writer, reports []Report) {
+func renderReport(writer io.Writer, reports []Report, testCases []TestCase) {
 	table := newTable(writer)
-	rows := generateRows(reports)
+	rows := generateRows(reports, testCases)
 
-	table.AppendBulk(rows["Failed"])
-	if len(rows["Failed"]) > 0 {
-		table.Append(newSeparator())
+	for _, row := range rows {
+		table.AppendBulk(row)
+		if len(row) > 0 {
+			table.Append(newSeparator())
+		}
 	}
-	table.AppendBulk(rows["Passed"])
 
 	table.Render()
 }

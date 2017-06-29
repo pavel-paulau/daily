@@ -251,7 +251,36 @@ type Report struct {
 	Value         float64 `json:"value"`
 }
 
-func (d *dataStore) getReport(build string) ([]Report, error) {
+type TestCase struct {
+	Component string `json:"component"`
+	Metric    string `json:"metric"`
+	TestCase  string `json:"testCase"`
+}
+
+func (d *dataStore) getAllCases() ([]TestCase, error) {
+	testCases := []TestCase{}
+
+	query := gocb.NewN1qlQuery(
+		"SELECT DISTINCT component, testCase, metric " +
+			"FROM daily " +
+			"WHERE component IS NOT MISSING " +
+			"ORDER BY component, testCase;")
+
+	rows, err := ds.bucket.ExecuteN1qlQuery(query, []interface{}{})
+	if err != nil {
+		return testCases, err
+	}
+
+	var row TestCase
+	for rows.Next(&row) {
+		testCases = append(testCases, row)
+		row = TestCase{}
+	}
+
+	return testCases, err
+}
+
+func (d *dataStore) getReports(build string) ([]Report, error) {
 	reports := []Report{}
 
 	query := gocb.NewN1qlQuery(
