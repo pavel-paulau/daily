@@ -14,7 +14,7 @@ function DashboardCtrl($scope, $http) {
 	$http.get('api/v1/builds').then(function(response) {
 		$scope.builds = response.data;
 		if ($scope.builds.indexOf('5.0.0-3490') !== -1) {
-			$scope.lhb = '5.0.0-3490';
+			$scope.lhb = '5.0.0-3519';
 		} else {
 			$scope.lhb = $scope.builds[0];
 		};
