@@ -15,7 +15,8 @@ var chartOptions = {
 			fontSize: 12
 		},
 		slantedText: false,
-		maxAlternation: 1
+		maxAlternation: 1,
+		maxTextLines: 1
 	},
 	interpolateNulls: false,
 	legend: {
