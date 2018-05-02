@@ -67,7 +67,7 @@ func (d *dataStore) addBenchmark(b *Benchmark) error {
 
 	_, err := d.bucket.Upsert(docId, b, 0)
 	if err != nil {
-		log.Error("failed to insert metric", "err", err)
+		log.Error("failed to insert benchmark", "err", err)
 	}
 	return err
 }
