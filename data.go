@@ -60,7 +60,6 @@ func hash(strings ...string) string {
 		h.Write([]byte(s))
 	}
 	return hex.EncodeToString(h.Sum(nil))
-
 }
 
 func (d *dataStore) addBenchmark(b *Benchmark) error {
@@ -71,7 +70,6 @@ func (d *dataStore) addBenchmark(b *Benchmark) error {
 		log.Error("failed to insert metric", "err", err)
 	}
 	return err
-
 }
 
 type Build struct {
