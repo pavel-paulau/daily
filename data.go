@@ -223,7 +223,6 @@ func (d *dataStore) calcMovingAverage(build, testCase string) (float64, error) {
 			"FROM (" +
 			"SELECT `value` " +
 			"FROM daily " +
-			"USE INDEX (daily_ma) " +
 			"WHERE `build` < $1 " +
 			"AND testCase = $2 " +
 			"ORDER BY `build` DESC " +
@@ -318,7 +317,6 @@ func (d *dataStore) getHistory(component, testCase, metric string) (*[]History, 
 	query := gocb.NewN1qlQuery(
 		"SELECT `build`, buildURL, `value` " +
 			"FROM daily " +
-			"USE INDEX (daily_view) " +
 			"WHERE component = $1 AND testCase = $2 AND metric = $3 " +
 			"ORDER BY `build` DESC;")
 
@@ -342,7 +340,6 @@ func (d *dataStore) getTimeline(component, testCase, metric string) (*[][]interf
 	query := gocb.NewN1qlQuery(
 		"SELECT `build`, `value`, annotation, annotationText " +
 			"FROM daily " +
-			"USE INDEX (daily_view) " +
 			"WHERE component = $1 AND testCase = $2 AND metric = $3 " +
 			"ORDER BY `build`;")
 
