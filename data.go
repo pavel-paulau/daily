@@ -217,7 +217,7 @@ func (d *dataStore) compare(build1, build2 string) (*[]Comparison, error) {
 	return &comparison, nil
 }
 
-func (d *dataStore) calcMovingAverage(build, testCase string) (float64, error) {
+func (d *dataStore) calcMovingAverage(build, testCase string, metric string) (float64, error) {
 	query := gocb.NewN1qlQuery(
 		"SELECT AVG(v.`value`) AS `value` " +
 			"FROM (" +
@@ -225,10 +225,11 @@ func (d *dataStore) calcMovingAverage(build, testCase string) (float64, error) {
 			"FROM daily " +
 			"WHERE `build` < $1 " +
 			"AND testCase = $2 " +
+			"AND metric = $3 " +
 			"ORDER BY `build` DESC " +
 			"LIMIT 3) v;")
 
-	params := []interface{}{build, testCase}
+	params := []interface{}{build, testCase, metric}
 	rows, err := ds.bucket.ExecuteN1qlQuery(query, params)
 	if err != nil {
 		return 0, err
@@ -294,7 +295,7 @@ func (d *dataStore) getReports(build string) ([]Report, error) {
 
 	var row Report
 	for rows.Next(&row) {
-		ma, err := d.calcMovingAverage(build, row.TestCase)
+		ma, err := d.calcMovingAverage(build, row.TestCase, row.Metric)
 		if err == nil && ma > 0 {
 			row.MovingAverage = ma
 			reports = append(reports, row)
