@@ -13,12 +13,12 @@ function DashboardCtrl($scope, $http) {
 
 	$http.get('api/v1/builds').then(function(response) {
 		$scope.builds = response.data;
-		if ($scope.builds.indexOf('5.0.0-3490') !== -1) {
-			$scope.lhb = '6.0.0-1693';
+		if ($scope.builds.indexOf('6.5.0-4960') !== -1) {
+			$scope.lhb = '6.5.0-4960';
 		} else {
 			$scope.lhb = $scope.builds[0];
 		};
-		$scope.rhb = $scope.builds[$scope.builds.length - 1];
+		$scope.rhb = $scope.builds[0];
 	});
 
 	$scope.$watch('lhb', function() {

@@ -82,8 +82,8 @@ func (d *dataStore) getBuilds() (*[]string, error) {
 	query := gocb.NewN1qlQuery(
 		"SELECT DISTINCT `build` " +
 			"FROM daily " +
-			"WHERE `build` IS NOT MISSING " +
-			"ORDER BY `build`;")
+			"WHERE `build` > \"6.0.0%\" AND `build` IS NOT MISSING " +
+			"ORDER BY `build` DESC;")
 
 	rows, err := ds.bucket.ExecuteN1qlQuery(query, []interface{}{})
 	if err != nil {
@@ -341,7 +341,7 @@ func (d *dataStore) getTimeline(component, testCase, metric string) (*[][]interf
 	query := gocb.NewN1qlQuery(
 		"SELECT `build`, `value`, annotation, annotationText " +
 			"FROM daily " +
-			"WHERE component = $1 AND testCase = $2 AND metric = $3 " +
+			"WHERE `build` > \"6.0.0%\" AND component = $1 AND testCase = $2 AND metric = $3 " +
 			"ORDER BY `build`;")
 
 	params := []interface{}{component, testCase, metric}
