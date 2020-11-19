@@ -8,6 +8,7 @@ import (
 
 	"gopkg.in/couchbase/gocb.v1"
 	log "gopkg.in/inconshreveable/log15.v2"
+	
 )
 
 type Benchmark struct {
@@ -45,7 +46,12 @@ func newDataStore() *dataStore {
 		os.Exit(1)
 	}
 
-	bucket, err := cluster.OpenBucket("daily", password)
+	cluster.Authenticate(gocb.PasswordAuthenticator{
+		Username: "Administrator",
+		Password: password,
+		})
+
+	bucket, err := cluster.OpenBucket("weekly", "")
 	if err != nil {
 		log.Error("failed to connect to bucket", "err", err)
 		os.Exit(1)
