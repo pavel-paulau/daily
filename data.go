@@ -51,7 +51,7 @@ func newDataStore() *dataStore {
 		Password: password,
 		})
 
-	bucket, err := cluster.OpenBucket("weekly", "")
+	bucket, err := cluster.OpenBucket("daily", "")
 	if err != nil {
 		log.Error("failed to connect to bucket", "err", err)
 		os.Exit(1)
