@@ -13,8 +13,8 @@ function DashboardCtrl($scope, $http) {
 
 	$http.get('api/v1/builds').then(function(response) {
 		$scope.builds = response.data;
-		if ($scope.builds.indexOf('7.0.0-5302') !== -1) {
-			$scope.lhb = '7.0.0-5302';
+		if ($scope.builds.indexOf('7.1.1-3175') !== -1) {
+			$scope.lhb = '7.1.1-3175';
 		} else {
 			$scope.lhb = $scope.builds[0];
 		};
