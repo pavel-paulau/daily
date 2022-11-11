@@ -50,7 +50,7 @@ func generateRows(reports []Report, testCases []TestCase) map[string][][]string 
 			continue
 		}
 		r := reports[i]
-		if tc.Component != tc.Component || tc.TestCase != r.TestCase {
+		if tc.Component != r.Component || tc.TestCase != r.TestCase {
 			addMissing(rows, tc)
 			continue
 		}
